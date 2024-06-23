@@ -1,6 +1,4 @@
-import 'package:auth_app/features/personalization/screens/email_verify_screen.dart';
-import 'package:auth_app/features/personalization/screens/sign_in_screen.dart';
-import 'package:auth_app/features/personalization/screens/sign_up_screen.dart';
+import 'package:auth_app/features/personalization/screens/auth/sign_in_screen.dart';
 import 'package:auth_app/features/personalization/widgets/bg_widget.dart';
 import 'package:auth_app/utils/constants/colors.dart';
 import 'package:flutter/gestures.dart';
@@ -16,6 +14,7 @@ class SetPassScreen extends StatefulWidget {
 class _SetPassScreenState extends State<SetPassScreen> {
   final TextEditingController _passwordTEController = TextEditingController();
   final TextEditingController _confirmPassTEController = TextEditingController();
+  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +42,24 @@ class _SetPassScreenState extends State<SetPassScreen> {
                         height: 24,
                       ),
                       TextFormField(
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.text,
+                        obscureText: _obscureText,
                         controller: _passwordTEController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Password',
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              if(mounted){
+                                setState(() {
+                                  _obscureText = !_obscureText;
+                                });
+                              }
+                            },
+                            icon: Icon(
+                              _obscureText ? Icons.visibility : Icons.visibility_off,
+                              color: AppColors.grey,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -54,10 +67,23 @@ class _SetPassScreenState extends State<SetPassScreen> {
                       ),
                       TextFormField(
                         keyboardType: TextInputType.text,
-                        obscureText: true,
+                        obscureText: _obscureText,
                         controller: _confirmPassTEController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Confirm Password',
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              if(mounted){
+                                setState(() {
+                                  _obscureText = !_obscureText;
+                                });
+                              }
+                            },
+                            icon: Icon(
+                              _obscureText ? Icons.visibility : Icons.visibility_off,
+                              color: AppColors.grey,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(

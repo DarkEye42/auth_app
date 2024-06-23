@@ -1,4 +1,5 @@
-import 'package:auth_app/features/personalization/screens/sign_in_screen.dart';
+import 'package:auth_app/features/personalization/screens/auth/pin_verify_screen.dart';
+import 'package:auth_app/features/personalization/screens/auth/sign_in_screen.dart';
 import 'package:auth_app/features/personalization/widgets/bg_widget.dart';
 import 'package:auth_app/utils/constants/colors.dart';
 import 'package:flutter/gestures.dart';
@@ -50,7 +51,13 @@ class _EmailVerifyScreenState extends State<EmailVerifyScreen> {
                 height: 16,
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PinVerifyScreen()),
+                        (Route<dynamic> route) => false,
+                  );
+                },
                 child: const Icon(Icons.arrow_circle_right_outlined),
               ),
               const SizedBox(

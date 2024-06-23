@@ -1,5 +1,5 @@
-import 'package:auth_app/features/personalization/screens/set_pass_screen.dart';
-import 'package:auth_app/features/personalization/screens/sign_in_screen.dart';
+import 'package:auth_app/features/personalization/screens/auth/set_pass_screen.dart';
+import 'package:auth_app/features/personalization/screens/auth/sign_in_screen.dart';
 import 'package:auth_app/features/personalization/widgets/bg_widget.dart';
 import 'package:auth_app/utils/constants/colors.dart';
 import 'package:flutter/gestures.dart';
@@ -83,15 +83,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       TextFormField(
                         keyboardType: TextInputType.text,
-                        obscureText: true,
+                        obscureText: _obscureText,
                         controller: _passwordTEController,
                         decoration: InputDecoration(
                           hintText: 'Password',
                           suffixIcon: IconButton(
                             onPressed: () {
-                              setState(() {
-                                _obscureText = !_obscureText;
-                              });
+                              if(mounted){
+                                setState(() {
+                                  _obscureText = !_obscureText;
+                                });
+                              }
                             },
                             icon: Icon(
                               _obscureText ? Icons.visibility : Icons.visibility_off,

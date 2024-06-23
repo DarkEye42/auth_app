@@ -1,5 +1,6 @@
-import 'package:auth_app/features/personalization/screens/email_verify_screen.dart';
-import 'package:auth_app/features/personalization/screens/sign_up_screen.dart';
+import 'package:auth_app/features/personalization/screens/auth/email_verify_screen.dart';
+import 'package:auth_app/features/personalization/screens/auth/sign_up_screen.dart';
+import 'package:auth_app/features/personalization/screens/main_bottom_nav_screen.dart';
 import 'package:auth_app/features/personalization/widgets/bg_widget.dart';
 import 'package:auth_app/utils/constants/colors.dart';
 import 'package:flutter/gestures.dart';
@@ -56,9 +57,11 @@ class _SignInScreenState extends State<SignInScreen> {
                   hintText: 'Password',
                   suffixIcon: IconButton(
                       onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
+                        if(mounted){
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        }
                       },
                       icon: Icon(
                         _obscureText ? Icons.visibility : Icons.visibility_off,
@@ -72,7 +75,9 @@ class _SignInScreenState extends State<SignInScreen> {
                 height: 16,
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainBottomNavScreen()));
+                },
                 child: const Icon(Icons.arrow_circle_right_outlined),
               ),
               const SizedBox(
