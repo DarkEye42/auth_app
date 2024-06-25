@@ -1,4 +1,4 @@
-import 'package:auth_app/utils/constants/app_settings.dart';
+import 'package:auth_app/utils/constants/app_strings.dart';
 
 class ResponseCode{
   static Map<int, String> httpStatusMessages = {

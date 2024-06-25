@@ -1,8 +1,17 @@
+import 'dart:convert';
+
+import 'package:auth_app/features/personalization/controllers/auth_controller.dart';
+import 'package:auth_app/features/personalization/models/login_model.dart';
+import 'package:auth_app/features/personalization/models/network_response.dart';
 import 'package:auth_app/features/personalization/screens/auth/email_verify_screen.dart';
 import 'package:auth_app/features/personalization/screens/auth/sign_up_screen.dart';
 import 'package:auth_app/features/personalization/screens/main_bottom_nav_screen.dart';
 import 'package:auth_app/features/personalization/widgets/bg_widget.dart';
+import 'package:auth_app/features/personalization/widgets/snack_bar_message.dart';
+import 'package:auth_app/utils/constants/app_regexp.dart';
 import 'package:auth_app/utils/constants/colors.dart';
+import 'package:auth_app/utils/constants/urls.dart';
+import 'package:auth_app/utils/services/network_request.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +26,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _emailTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
   bool _obscureText = true;
+  bool _signInInProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +55,15 @@ class _SignInScreenState extends State<SignInScreen> {
                 decoration: const InputDecoration(
                   hintText: 'Email',
                 ),
+                validator: (String? value) {
+                  if (value?.trim().isEmpty ?? true) {
+                    return 'Enter Your Email';
+                  }
+                  if (AppRegExp.emailRegExp.hasMatch(value!) == false) {
+                    return 'Enter a valid email address';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(
                 height: 8,
@@ -56,29 +75,34 @@ class _SignInScreenState extends State<SignInScreen> {
                 decoration: InputDecoration(
                   hintText: 'Password',
                   suffixIcon: IconButton(
-                      onPressed: () {
-                        if(mounted){
-                          setState(() {
-                            _obscureText = !_obscureText;
-                          });
-                        }
-                      },
-                      icon: Icon(
-                        _obscureText ? Icons.visibility : Icons.visibility_off,
-                        color: AppColors.grey,
-                      ),
+                    onPressed: () {
+                      if (mounted) {
+                        setState(() {
+                          _obscureText = !_obscureText;
+                        });
+                      }
+                    },
+                    icon: Icon(
+                      _obscureText ? Icons.visibility : Icons.visibility_off,
+                      color: AppColors.grey,
+                    ),
                   ),
                 ),
-
               ),
               const SizedBox(
                 height: 16,
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainBottomNavScreen()));
-                },
-                child: const Icon(Icons.arrow_circle_right_outlined),
+              Visibility(
+                visible: _signInInProgress == false,
+                replacement: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                child: ElevatedButton(
+                  onPressed: () {
+                    _signInUser();
+                  },
+                  child: const Icon(Icons.arrow_circle_right_outlined),
+                ),
               ),
               const SizedBox(
                 height: 32,
@@ -88,7 +112,11 @@ class _SignInScreenState extends State<SignInScreen> {
                   children: [
                     TextButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => const EmailVerifyScreen()));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const EmailVerifyScreen()));
                       },
                       child: const Text('Forgot Password?'),
                     ),
@@ -108,9 +136,14 @@ class _SignInScreenState extends State<SignInScreen> {
                               color: AppColors.themeColor,
                               fontWeight: FontWeight.bold,
                             ),
-                            recognizer: TapGestureRecognizer()..onTap = () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUpScreen()));
-                            },
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const SignUpScreen()));
+                              },
                           )
                         ])),
                   ],
@@ -121,6 +154,57 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ))),
     );
+  }
+
+  Future<void> _signInUser() async {
+    _signInInProgress = true;
+    if (mounted) {
+      setState(() {});
+    }
+
+    Map<String, dynamic> requestInput = {
+      "email": _emailTEController.text.trim(),
+      "password": _passwordTEController.text,
+    };
+
+    NetworkResponse response =
+        await NetworkCaller.postRequest(Urls.signInUrl, body: requestInput);
+    _signInInProgress = false;
+    if (mounted) {
+      setState(() {});
+    }
+    if (response.isSuccess) {
+      _clearTextFields();
+      LoginModel loginModel = LoginModel.fromJson(response.responseData);
+      await AuthController.saveUserAccessToken(loginModel.token!);
+      await AuthController.saveUserData(loginModel.userModel!);
+
+      if (mounted) {
+        Map<String, dynamic> jsonData = response.responseData;
+        String firstName = jsonData['data']['firstName'];
+        showSnackBarMessage(context, 'Welcome! $firstName');
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MainBottomNavScreen(),
+          ),
+        );
+      }
+    } else {
+      if (mounted) {
+        showSnackBarMessage(
+          context,
+          response.errorMessage ?? 'Invalid login credential! Try again.',
+          true,
+        );
+      }
+    }
+  }
+
+  void _clearTextFields() {
+    _emailTEController.clear();
+    _passwordTEController.clear();
   }
 
   @override

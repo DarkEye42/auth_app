@@ -1,3 +1,5 @@
+import 'package:auth_app/features/personalization/controllers/auth_controller.dart';
+import 'package:auth_app/features/personalization/screens/main_bottom_nav_screen.dart';
 import 'package:auth_app/features/personalization/widgets/bg_widget.dart';
 import 'package:auth_app/utils/constants/asset_paths.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +15,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -22,9 +23,18 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _moveToNextScreen() async {
     await Future.delayed(const Duration(seconds: 5));
-    if(mounted) {
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const SignInScreen()));
+
+    bool isUserLoggedIn = await AuthController.checkAuthState();
+
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => isUserLoggedIn
+              ? const MainBottomNavScreen()
+              : const SignInScreen(),
+        ),
+      );
     }
   }
 

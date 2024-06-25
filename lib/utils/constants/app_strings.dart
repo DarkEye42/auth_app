@@ -1,17 +1,4 @@
 class AppStrings {
-  //api constants
-  static const String baseUrl = "https://task.teamrabbil.com/api/v1/";
-  static const String registrationEndpoint = "registration";
-  static const String signInEndpoint = "login";
-  static const String recoverEmailEndpoint = "RecoverVerifyEmail";
-  static const String verifyOTPEndpoint = "RecoverVerifyOTP";
-  static const String resetPasswordEndpoint = "RecoverResetPass";
-  static const String taskStatusCountEndpoint = "taskStatusCount";
-  static const String listTaskByStatusEndpoint = "listTaskByStatus";
-  static const String deleteTaskEndpoint = "deleteTask";
-  static const String createTaskEndpoint = "createTask";
-  static const String updateTaskEndpoint = "updateTaskStatus";
-  static const String profileUpdateEndpoint = "profileUpdate";
   static const String unknownResponseText = "Unknown Error";
 
 

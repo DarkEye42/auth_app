@@ -1,49 +1,77 @@
 import 'dart:convert';
-import 'package:auth_app/features/personalization/models/failure.dart';
-import 'package:auth_app/features/personalization/models/response_code.dart';
-import 'package:auth_app/features/personalization/models/success.dart';
-import 'package:auth_app/utils/constants/app_settings.dart';
-import 'package:flutter/foundation.dart';
+
+import 'package:auth_app/features/personalization/controllers/auth_controller.dart';
+import 'package:auth_app/features/personalization/models/network_response.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 
-class NetworkRequest {
-  static Object? finalResponse;
+class NetworkCaller {
+  static Future<NetworkResponse> getRequest(String url) async {
+    try {
+      debugPrint(url);
+      Response response = await get(Uri.parse(url), headers: {
+        'token': AuthController.accessToken,
+      });
+      debugPrint(response.statusCode.toString());
+      debugPrint(response.body);
+      if (response.statusCode == 200) {
+        final decodedData = jsonDecode(response.body);
+        return NetworkResponse(
+          statusCode: response.statusCode,
+          isSuccess: true,
+          responseData: decodedData,
+        );
+      } else {
+        return NetworkResponse(
+          statusCode: response.statusCode,
+          isSuccess: false,
+        );
+      }
+    } catch (e) {
+      return NetworkResponse(
+        statusCode: -1,
+        isSuccess: false,
+        errorMessage: e.toString(),
+      );
+    }
+  }
 
-  static Future<Object> getRequest(
-      {required String uri, Map<String, String>? headers}) async {
+  static Future<NetworkResponse> postRequest(
+      String url, {
+        Map<String, dynamic>? body,
+      }) async {
     try {
-      Response response = await get(Uri.parse(uri), headers: headers);
-      finalResponse = getResponse(response);
-    } catch (exception) {
-      if (kDebugMode) {
-        debugPrint(exception.toString());
+      debugPrint(url);
+      debugPrint(body.toString());
+      Response response = await post(
+        Uri.parse(url),
+        body: jsonEncode(body),
+        headers: {
+          'Content-type': 'Application/json',
+          'token': AuthController.accessToken
+        },
+      );
+      debugPrint(response.statusCode.toString());
+      debugPrint(response.body);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final decodedData = jsonDecode(response.body);
+        return NetworkResponse(
+          statusCode: response.statusCode,
+          isSuccess: true,
+          responseData: decodedData,
+        );
+      } else {
+        return NetworkResponse(
+          statusCode: response.statusCode,
+          isSuccess: false,
+        );
       }
-      finalResponse = Failure(600, AppStrings.unknownResponseText);
-    }
-    return finalResponse!;
-  }
-  static Future<Object> postRequest(
-      {required String uri, Map<String, String>? headers,required Map<String,dynamic> body}) async {
-    try {
-      Response response = await post(Uri.parse(uri), headers: headers,body: jsonEncode(body));
-      finalResponse = getResponse(response);
-    } catch (exception) {
-      if (kDebugMode) {
-        debugPrint(exception.toString());
-      }
-      finalResponse = Failure(600, AppStrings.unknownResponseText);
-    }
-    return finalResponse!;
-  }
-  static Object getResponse(Response response){
-    if(response.statusCode == 200){
-      final jsonData = jsonDecode(response.body);
-      return Success(response: jsonData);
-    } else{
-      return Failure(
-          response.statusCode,
-          ResponseCode.httpStatusMessages[response.statusCode] ??
-              AppStrings.unknownResponseText);
+    } catch (e) {
+      return NetworkResponse(
+        statusCode: -1,
+        isSuccess: false,
+        errorMessage: e.toString(),
+      );
     }
   }
 }
